@@ -1,5 +1,3 @@
-# SE374
-
 <p align="center">
   <a href="https://www.uit.edu.vn/" title="Trường Đại học Công nghệ Thông tin" style="border: 5;">
     <img src="https://i.imgur.com/WmMnSRt.png" alt="Trường Đại học Công nghệ Thông tin | University of Information Technology">
@@ -22,8 +20,8 @@
 <a name="gioithieumonhoc"></a>
 * **Tên môn học**: Phát triển phần mềm xử lý ảnh y khoa
 * **Mã môn học**: SE374
-* **Lớp học**: *(Đang cập nhật)*
-* **Năm học**: 2025-2026
+* **Lớp học**: SE374.R11
+* **Năm học**: 2026-2027
 
 
 ## GIẢNG VIÊN HƯỚNG DẪN
