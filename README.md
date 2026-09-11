@@ -33,7 +33,7 @@
 <a name="thanhvien"></a>
 | STT    | MSSV          | Họ và Tên              | Github                                               | Email                   |
 |:------:|:-------------:|:-----------------------|:-----------------------------------------------------|:------------------------|
-| 1      |               |                        |                                                      |                         |
+| 1      | 24520237      | Nguyễn Cao Cường       | https://github.com/CuongNguyen7983                   | 24520237@gm.uit.edu.vn  |
 | 2      | 23520588      | Nguyễn Lan Hương       | [Hinno](https://github.com/HinnoNguyen)              | 23520588@gm.uit.edu.vn  |
 | 3      |               |                        |                                                      |                         |
 
