@@ -1,0 +1,16 @@
+# Logs and temporary files
+*.log
+*.done
+__pycache__/
+*.pyc
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Virtual environments & IDEs
+venv/
+.venv/
+.idea/
+.vscode/
