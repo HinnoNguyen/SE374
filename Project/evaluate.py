@@ -240,8 +240,8 @@ def print_table1(zero_shot_results:   Dict[str, dict],
     zero_shot_results, weakly_sup_results:
         dict mapping dataset name → evaluate_pairs() output dict
     """
-    DATASETS = ['breast', 'brain', 'xray', 'ct']
-    NAMES    = ['Breast US', 'Brain MRI', 'Lung X-ray', 'Lung CT', 'All']
+    DATASETS = ['brain', 'ct']
+    NAMES    = ['Brain MRI', 'Lung CT', 'All']
 
     zs_all = compute_all_column(zero_shot_results)
     ws_all = compute_all_column(weakly_sup_results)
@@ -467,8 +467,8 @@ def print_table6(sam_results: dict):
         ('medsam',     'MedSAM (ViT-B)'),
         ('sam_med2d',  'SAM-Med2D (ViT-B)'),
     ]
-    DATASETS = ['breast', 'brain', 'xray', 'ct']
-    NAMES    = ['Breast', 'Brain', 'X-ray', 'CT']
+    DATASETS = ['brain', 'ct']
+    NAMES    = ['Brain', 'CT']
 
     print("\n" + "═" * 82)
     print("TABLE 6 — SAM Backbone Comparison (DSC %)  format: yours(paper)")

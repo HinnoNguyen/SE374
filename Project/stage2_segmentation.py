@@ -403,7 +403,7 @@ def run_stage2(dataset_name: str,
     Run Stage 2 on one dataset: M2IB → postprocess → SAM.
 
     Args:
-        dataset_name  : one of 'breast', 'brain', 'xray', 'ct'
+        dataset_name  : one of 'brain', 'ct'
         all_pairs     : list of (image_path, mask_path_or_None, prompt_key)
         m2ib_cfg      : M2IBConfig (defaults applied if None)
         pp_cfg        : PostprocessConfig
@@ -420,7 +420,7 @@ def run_stage2(dataset_name: str,
 
     # Decide n_steps based on dataset size
     n_steps = (m2ib_cfg.n_steps_large
-               if dataset_name in ('xray', 'ct')
+               if dataset_name == 'ct'
                else m2ib_cfg.n_steps_small)
 
     # Paths for progress saving

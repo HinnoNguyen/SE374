@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 
 from config import Paths
-from datasets import load_breast, load_brain, load_xray, load_ct
+from datasets import load_brain, load_ct
 from evaluate import dice, load_predictions_from_dir
 
 # ─────────────────────────────────────────────────────────────
@@ -18,23 +18,11 @@ from evaluate import dice, load_predictions_from_dir
 # ─────────────────────────────────────────────────────────────
 
 _DATASETS = {
-    'breast': {
-        'loader':   load_breast,
-        'args':     lambda: {'breast_dir': Paths.BREAST_DIR},
-        'pred_dir': lambda: os.path.join(Paths.PRED_DIR, 'breast'),
-        'zs_pkl':   lambda: os.path.join(Paths.MASK_DIR, 'breast', 'zero_shot.pkl'),
-    },
     'brain': {
         'loader':   load_brain,
         'args':     lambda: {'brain_dir': Paths.BRAIN_DIR},
         'pred_dir': lambda: os.path.join(Paths.PRED_DIR, 'brain'),
         'zs_pkl':   lambda: os.path.join(Paths.MASK_DIR, 'brain', 'zero_shot.pkl'),
-    },
-    'xray': {
-        'loader':   load_xray,
-        'args':     lambda: {'xray_dir': Paths.XRAY_DIR},
-        'pred_dir': lambda: os.path.join(Paths.PRED_DIR, 'lungxray'),
-        'zs_pkl':   lambda: os.path.join(Paths.MASK_DIR, 'xray', 'zero_shot.pkl'),
     },
     'ct': {
         'loader':   load_ct,
@@ -216,7 +204,7 @@ def visualize_dataset(ds_name: str, out_root: str, max_n: int):
 
 def main():
     parser = argparse.ArgumentParser(description='Visualize MedCLIP-SAMv2 predictions')
-    parser.add_argument('--dataset', choices=['breast', 'brain', 'xray', 'ct', 'all'],
+    parser.add_argument('--dataset', choices=['brain', 'ct', 'all'],
                         default='all')
     parser.add_argument('--n',   type=int, default=0,
                         help='Max samples per dataset (0 = all)')

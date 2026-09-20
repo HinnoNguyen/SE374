@@ -46,7 +46,7 @@ class Paths:
         for attr in ['CKPT_DIR', 'MASK_DIR', 'PRED_DIR',
                      'NNUNET_RAW', 'NNUNET_PREP', 'NNUNET_RES']:
             os.makedirs(getattr(cls, attr), exist_ok=True)
-        for ds in ['breast', 'brain', 'xray', 'ct']:
+        for ds in ['brain', 'ct']:
             os.makedirs(os.path.join(cls.MASK_DIR, ds), exist_ok=True)
             os.makedirs(os.path.join(cls.PRED_DIR, ds), exist_ok=True)
 
@@ -90,9 +90,7 @@ class SAMConfig:
     model_type: str = 'vit_h'
     use_fp16: bool  = True
     prompt_strategy: Dict = field(default_factory=lambda: {
-        'breast': 'bbox',
         'brain':  'bbox',
-        'xray':   'points',
         'ct':     'bbox',
     })
     n_points: int = 10
@@ -113,22 +111,11 @@ class NNUNetConfig:
     checkpoints_per_cycle: int = 10
     image_size: int            = 256
     dataset_ids: Dict = field(default_factory=lambda: {
-        'breast': 1, 'brain': 2, 'xray': 3, 'ct': 4,
+        'brain': 1, 'ct': 2,
     })
 
 
 PROMPTS = {
-    'breast_benign': (
-        "An ultrasound image of the breast showing a well-defined, oval or round "
-        "hypoechoic mass with smooth margins and posterior acoustic enhancement "
-        "suggestive of a benign breast tumor."
-    ),
-    'breast_malignant': (
-        "An ultrasound image of the breast showing an irregularly shaped, spiculated "
-        "hypoechoic mass with posterior acoustic shadowing and angular margins "
-        "suggestive of a malignant breast tumor."
-    ),
-    'breast_generic':    "breast tumor in ultrasound",
     'brain_glioma': (
         "A T1-weighted brain MRI showing a heterogeneous mass with irregular borders, "
         "surrounding edema, and ring enhancement in the cerebral hemisphere "
@@ -143,7 +130,6 @@ PROMPTS = {
         "from the pituitary gland suggestive of a pituitary tumor."
     ),
     'brain_generic':     "brain tumor in MRI",
-    'xray':              "lungs",
     'ct': (
         "A CT scan showing bilateral lung lobes with parenchymal changes and "
         "altered lung tissue density consistent with fibrotic lung disease."
@@ -151,24 +137,16 @@ PROMPTS = {
 }
 
 PAPER_TARGETS = {
-    'breast': {
-        'zero_shot_dsc': 77.76, 'zero_shot_nsd': 81.11,
-        'weakly_sup_dsc': 78.87, 'weakly_sup_nsd': 84.58,
-    },
     'brain': {
         'zero_shot_dsc': 76.52, 'zero_shot_nsd': 82.23,
         'weakly_sup_dsc': 80.03, 'weakly_sup_nsd': 88.25,
-    },
-    'xray': {
-        'zero_shot_dsc': 75.79, 'zero_shot_nsd': 80.88,
-        'weakly_sup_dsc': 80.77, 'weakly_sup_nsd': 84.53,
     },
     'ct': {
         'zero_shot_dsc': 80.38, 'zero_shot_nsd': 82.03,
         'weakly_sup_dsc': 88.78, 'weakly_sup_nsd': 91.95,
     },
     'average': {
-        'zero_shot_dsc': 77.61, 'zero_shot_nsd': 81.56,
-        'weakly_sup_dsc': 82.11, 'weakly_sup_nsd': 87.33,
+        'zero_shot_dsc': 78.45, 'zero_shot_nsd': 82.13,
+        'weakly_sup_dsc': 84.41, 'weakly_sup_nsd': 90.10,
     },
 }

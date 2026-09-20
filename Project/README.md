@@ -24,17 +24,11 @@ Replicated results vs. Table 1 of the paper (DSC %, higher is better):
 
 | Dataset | ZS DSC (paper) | ZS DSC (ours) | WS DSC (paper) | WS DSC (ours) |
 |---------|:--------------:|:-------------:|:--------------:|:-------------:|
-| Breast US | 77.76% | 5.17% | 78.87% | 5.61% |
 | Brain MRI | 76.52% | 4.86% | 80.03% | 5.01% |
-| Lung X-ray | 75.79% | **50.01%** | 80.77% | **49.62%** |
 | Lung CT | 80.38% | 7.93% | 88.78% | 9.04% |
 
-> **X-ray** produces plausible segmentations (~50% DSC). The gap on breast/brain/CT is under
-> investigation — M2IB saliency maps produce near-empty masks on those modalities despite the
-> SAM coordinate fix being applied. The nnUNet trained on these poor pseudo-labels cannot
-> recover meaningful segmentations.
-
-![X-ray best predictions](assets/xray_summary_best.png)
+> **Scope đồ án:** Tập trung nghiên cứu chuyên sâu vào 2 modality y khoa: **Brain MRI** (u não) và **Lung CT** (tổn thương/u phổi).
+> Vấn đề trọng tâm cần cải thiện: Phân tích nguyên nhân M2IB saliency maps sinh mask yếu trên Brain và CT, từ đó tối ưu prompt và hậu xử lý để nâng cao độ chính xác.
 
 *Breast (worst 10 cases — illustrating the open M2IB saliency issue):*
 
@@ -107,11 +101,7 @@ confirm everything is found correctly.
 
 ```
 data/
-  breast_tumors/
-    train/{images/, masks/}   val/{images/, masks/}   test/{images/, masks/}
   brain_tumors/
-    train/{images/, masks/}   val/{images/, masks/}   test/{images/, masks/}
-  lung_Xray/
     train/{images/, masks/}   val/{images/, masks/}   test/{images/, masks/}
   lung_CT/
     train/{images/, masks/}   val/{images/, masks/}   test/{images/, masks/}
@@ -125,9 +115,7 @@ models/
 
 | Dataset | Source |
 |---------|--------|
-| Breast Tumors (BUSI / UDIAT) | Kaggle: `aryashah2k/breast-ultrasound-images-dataset` |
 | Brain Tumors (Br35H) | Kaggle: `masoudnickparvar/brain-tumor-mri-dataset` |
-| Lung X-ray (Montgomery + Shenzhen) | Kaggle: `nikhilpandey360/chest-xray-masks-and-labels` |
 | Lung CT (LUNA16 subset) | Kaggle: `kmader/finding-lungs-in-ct-data` |
 | MedPix 2.0 | https://medpix.nlm.nih.gov |
 | ROCO | Kaggle: `virajbagal/roco-dataset` |
@@ -145,13 +133,15 @@ python verify.py
 full_run.bat
 
 # Or step-by-step
-python run_all.py                      # all 3 stages + evaluation
+python run_all.py                      # all 3 stages + evaluation (Brain & CT)
 python run_all.py --skip-stage1        # resume from Stage 2 (BiomedCLIP already fine-tuned)
 python run_all.py --eval-only          # re-run evaluation only
-python run_all.py --dataset breast     # single dataset
+python run_all.py --dataset brain      # Brain MRI only
+python run_all.py --dataset ct         # Lung CT only
 
 # Visualize predictions (4-panel grids: input | GT | zero-shot | nnUNet)
-python visualize.py --dataset breast --n 20
+python visualize.py --dataset brain --n 20
+python visualize.py --dataset ct --n 20
 python visualize.py --dataset all
 ```
 

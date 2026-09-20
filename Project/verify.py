@@ -363,9 +363,7 @@ def check_sam():
 
 def run_all_checks():
     check_fns = {
-        'Breast Tumors':                    check_breast,
         'Brain Tumors':                     check_brain,
-        'Lung X-ray':                       check_xray,
         'Lung CT':                          check_ct,
         'MedPix 2.0 (Stage 1 fine-tuning)': check_medpix,
         'ROCO (Stage 1 validation)':         check_roco,

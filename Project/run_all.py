@@ -25,7 +25,7 @@ from config import (
 )
 from datasets import (
     load_medpix, load_roco,
-    load_breast, load_brain, load_xray, load_ct
+    load_brain, load_ct
 )
 from stage1_finetune import run_stage1
 from stage2_segmentation import run_stage2
@@ -45,41 +45,25 @@ from evaluate import (
 # ─────────────────────────────────────────────────────────────
 
 DATASET_REGISTRY = {
-    'breast': {
-        'loader': load_breast,
-        'loader_args': {'breast_dir': None},
-        'nnunet_name': 'Breast',
-        'nnunet_id':   1,
-        'large':       False,
-    },
     'brain': {
         'loader':      load_brain,
-        'loader_args': {'brain_dir': None},   # unchanged
+        'loader_args': {'brain_dir': None},
         'nnunet_name': 'Brain',
-        'nnunet_id':   2,
+        'nnunet_id':   1,
         'large':       False,
-    },
-    'xray': {
-        'loader':      load_xray,
-        'loader_args': {'xray_dir': None},
-        'nnunet_name': 'LungXray',
-        'nnunet_id':   3,
-        'large':       True,
     },
     'ct': {
         'loader':      load_ct,
         'loader_args': {'ct_dir': None},
         'nnunet_name': 'LungCT',
-        'nnunet_id':   4,
+        'nnunet_id':   2,
         'large':       True,
     },
 }
 
 def fill_loader_args():
-    DATASET_REGISTRY['breast']['loader_args'] = {'breast_dir': Paths.BREAST_DIR}
-    DATASET_REGISTRY['brain']['loader_args']  = {'brain_dir':  Paths.BRAIN_DIR}
-    DATASET_REGISTRY['xray']['loader_args']   = {'xray_dir':   Paths.XRAY_DIR}
-    DATASET_REGISTRY['ct']['loader_args']     = {'ct_dir':     Paths.CT_DIR}
+    DATASET_REGISTRY['brain']['loader_args'] = {'brain_dir': Paths.BRAIN_DIR}
+    DATASET_REGISTRY['ct']['loader_args']    = {'ct_dir':    Paths.CT_DIR}
 
 
 # ─────────────────────────────────────────────────────────────
@@ -252,7 +236,7 @@ def main(args):
         print_table2(results['roco'])
 
     # Rebuild from JSON for any datasets computed in a previous run
-    for ds in ['breast', 'brain', 'xray', 'ct']:
+    for ds in ['brain', 'ct']:
         r = results.get(ds, {})
         if ds not in zs_agg and 'zs_dsc' in r:
             zs_agg[ds] = {
@@ -287,10 +271,9 @@ def reset_caches(dataset: str = None):
     If dataset is given, only clear that dataset's masks and nnunet dirs.
     Otherwise clear everything (all datasets + Stage 1 checkpoint).
     """
-    datasets = [dataset] if dataset else ['breast', 'brain', 'xray', 'ct']
+    datasets = [dataset] if dataset else ['brain', 'ct']
     registry = {
-        'breast': 'Breast', 'brain': 'Brain',
-        'xray': 'LungXray', 'ct': 'LungCT',
+        'brain': 'Brain', 'ct': 'LungCT',
     }
 
     for ds in datasets:
@@ -321,7 +304,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='MedCLIP-SAMv2 replication')
     parser.add_argument('--skip-stage1', action='store_true')
     parser.add_argument('--dataset', type=str,
-                        choices=['breast', 'brain', 'xray', 'ct'], default=None)
+                        choices=['brain', 'ct'], default=None)
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--eval-only', action='store_true')
     parser.add_argument('--reset', action='store_true',
