@@ -33,7 +33,7 @@
 <a name="thanhvien"></a>
 | STT    | MSSV          | Họ và Tên              | Github                                               | Email                   |
 |:------:|:-------------:|:-----------------------|:-----------------------------------------------------|:------------------------|
-| 1      | 24520237      | Nguyễn Cao Cường       | https://github.com/CuongNguyen7983                   | 24520237@gm.uit.edu.vn  |
+| 1      | 24520237      | Nguyễn Cao Cường       | [CuongNguyen7983](https://github.com/CuongNguyen7983) | 24520237@gm.uit.edu.vn  |
 | 2      | 23520588      | Nguyễn Lan Hương       | [Hinno](https://github.com/HinnoNguyen)              | 23520588@gm.uit.edu.vn  |
 | 3      | 23521261      | Nguyễn Đình Hoàng Quân | [DSeaNguyen](https://github.com/DSeaNguyen)          | 23521261@gm.uit.edu.vn  |
 | 4      | 23521548      | Dương Quốc Thuận       | [duongthuan0405](https://github.com/duongthuan0405)  | 23521548@gm.uit.edu.vn  |
