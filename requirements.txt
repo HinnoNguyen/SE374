@@ -1,0 +1,15 @@
+# Install PyTorch FIRST with the CUDA build that matches your GPU driver:
+#   https://pytorch.org/get-started/locally/
+#   e.g.  pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+torch>=2.3
+numpy
+opencv-python
+pandas
+pyyaml
+tqdm
+matplotlib
+pydicom
+pytorch-msssim     # SSIM / MS-SSIM loss and metrics
+ensemble-boxes     # Weighted Boxes Fusion for the 3-radiologist annotations
+ultralytics>=8.3   # YOLO11
+kaggle             # dataset download

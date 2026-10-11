@@ -14,3 +14,24 @@ venv/
 .venv/
 .idea/
 .vscode/
+
+# Data (license forbids redistribution, and it is far too large for git)
+data/*
+!data/README.md
+*.dcm
+*.zip
+*.cache
+
+# Model weights / training outputs (share via GitHub Releases or Drive instead)
+checkpoints/*
+!checkpoints/.gitkeep
+runs/
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.onnx
+
+# Credentials
+kaggle.json
+.env
