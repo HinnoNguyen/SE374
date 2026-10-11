@@ -35,7 +35,8 @@
 |:------:|:-------------:|:-----------------------|:-----------------------------------------------------|:------------------------|
 | 1      | 24520237      | Nguyễn Cao Cường       | https://github.com/CuongNguyen7983                   | 24520237@gm.uit.edu.vn  |
 | 2      | 23520588      | Nguyễn Lan Hương       | [Hinno](https://github.com/HinnoNguyen)              | 23520588@gm.uit.edu.vn  |
-| 3      |               |                        |                                                      |                         |
+| 3      | 23521261      | Nguyễn Đình Hoàng Quân |                                                      | 23521261@gm.uit.edu.vn  |
+| 4      | 23521548      | Dương Quốc Thuận       |                                                      | 23521548@gm.uit.edu.vn  |
 
 
 ## ĐỒ ÁN MÔN HỌC
