@@ -13,3 +13,5 @@ pytorch-msssim     # SSIM / MS-SSIM loss and metrics
 ensemble-boxes     # Weighted Boxes Fusion for the 3-radiologist annotations
 ultralytics>=8.3   # YOLO11
 kaggle             # dataset download
+h5py               # read the published Keras ResNet-BS weights (scripts/convert_pretrained.py)
+# tensorflow-cpu   # only needed once to convert the hmchuong TF1 checkpoint

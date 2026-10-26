@@ -69,7 +69,8 @@ def make_splits(df: pd.DataFrame, val: float, test: float, keep_normal: float, s
         n_test, n_val = int(round(n * test)), int(round(n * val))
         splits = ["test"] * n_test + ["val"] * n_val + ["train"] * (n - n_test - n_val)
         used = np.ones(n, dtype=bool) if is_abn else (rng.random(n) < keep_normal)
-        rows += [{"image_id": i, "split": s, "abnormal": is_abn, "used": bool(u)}
+        # no label information is stored, so the file can be shared (git) between machines
+        rows += [{"image_id": i, "split": s, "used": bool(u)}
                  for i, s, u in zip(ids, splits, used)]
     return pd.DataFrame(rows).sort_values("image_id").reset_index(drop=True)
 
@@ -167,7 +168,7 @@ def main() -> None:
             missing += 1
             continue
         lines = []
-        if r.abnormal and r.image_id in ann.groups:
+        if r.image_id in ann.groups:  # images with at least one abnormality box
             w, h = sizes.loc[r.image_id, ["orig_w", "orig_h"]]
             boxes, labels = fuse_boxes(ann.get_group(r.image_id), float(w), float(h),
                                        args.iou_thr, args.skip_box_thr)

@@ -18,6 +18,9 @@ venv/
 # Data (license forbids redistribution, and it is far too large for git)
 data/*
 !data/README.md
+# small metadata files that every machine must share (no images, no labels)
+!data/vindr_splits.csv
+!data/vindr_train_sizes.csv
 *.dcm
 *.zip
 *.cache

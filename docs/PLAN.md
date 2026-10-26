@@ -1,81 +1,90 @@
 # Kế hoạch đồ án
 
-**Đề tài:** Xóa bóng xương sườn trên ảnh X-quang ngực nhằm cải thiện phát hiện bất thường trên bộ dữ liệu VinDr-CXR
+**Đề tài:** Bone Suppression in Chest X-rays for Improving Abnormality Detection on the VinDr-CXR Dataset
 
-**Câu hỏi nghiên cứu:** *Xóa bóng xương có giúp phát hiện bất thường trên X-quang ngực tốt hơn không? Với loại bệnh nào?*
+**Câu hỏi nghiên cứu:** *Xóa bóng xương có giúp phát hiện bất thường trên ảnh X-quang ngực tốt hơn không, và với những loại bệnh nào?*
 
-## Tiêu chí chấm của giảng viên → sản phẩm tương ứng
+**Điểm mới (theo nhận xét của giảng viên):** các nghiên cứu trước chứng minh lợi ích của xóa xương trên bài toán **phân loại** (ví dụ Rajaraman et al. 2021, lao phổi);
+đồ án kiểm tra trên bài toán **phát hiện vùng bất thường** (abnormal region detection) với 14 loại bất thường của VinDr-CXR.
 
-| Tiêu chí | Sản phẩm |
-|---|---|
-| Hiểu vấn đề | Báo cáo: vì sao xương che tổn thương, cơ chế mô hình, phân tích bệnh nào tốt lên/tệ đi, hạn chế |
-| Thực hiện được | Tự train lại toàn bộ mô hình bằng code trong `src/` |
-| Có kết quả | Bảng PSNR/SSIM (Phần 1), bảng AP theo từng bệnh A/B/C (Phần 2), hình minh họa |
-| Có mã nguồn | Repo này |
-| Có checkpoints | `best.pt` của mô hình xóa xương và YOLO, đưa lên GitHub Releases |
-| App demo (nếu có) | Thành viên khác phụ trách, dùng `src.bone_suppression.infer.suppress()` + YOLO |
+## Góp ý của giảng viên (10/2026) → việc cần làm
+
+| # | Góp ý | Việc cần làm |
+|---|---|---|
+| 1 | Tìm related works: đã có nghiên cứu nào *improve detection by bone suppression* chưa, nhất là trên VinDr-CXR | Điền [`related_works.md`](related_works.md) |
+| 2 | Train bone suppression tốn thời gian/chi phí → **dùng trước các mô hình có sẵn checkpoint**, áp lên VinDr, train YOLO xem có cải thiện không; so sánh nhiều mô hình có sẵn (gợi ý GL-LCM, MICCAI 2025) | Thí nghiệm B1, B2 (và B3 nếu được) |
+| 3 | Nếu tự train: PSNR/SSIM chỉ cần đo trên JSRT/BSE-JSRT. Trên VinDr đánh giá bằng **mAP@50, mAP@[0.5:0.95]** | `evaluate_yolo` + `compare` (cột AP50, AP50_95) |
 
 ## Thí nghiệm
 
-### Phần 1: Xóa bóng xương (JSRT / BSE-JSRT, 512×512)
-| Mô hình | Ghi chú | PSNR | SSIM | MS-SSIM |
+Tất cả dùng **cùng cách chia tập** (`data/vindr_splits.csv`) và **cùng cấu hình YOLO**; chỉ khác ảnh đầu vào.
+
+| Mã | Đầu vào YOLO | Mô hình xóa xương | Chạy ở đâu | Bắt buộc? |
 |---|---|---|---|---|
-| Identity (ảnh gốc so với ảnh đích) | mốc tham chiếu | | | |
-| AE (Gusarev-style) | | | | |
-| ResNet-BS (Rajaraman 2021) | train trên crop 256 | | | |
-| U-Net | | | | |
+| **A** | Ảnh gốc | Không có (baseline) | Local | ✅ |
+| **B1** | Ảnh xóa xương | **ResNet-BS** (Rajaraman et al. 2021), đầu vào 256px | Local | ✅ |
+| **B2** | Ảnh xóa xương | **AE** (Gusarev et al. 2017, bản của hmchuong), đầu vào 1024px | Local | ✅ |
+| B3 | Ảnh xóa xương | **GL-LCM** (Sun et al., MICCAI 2025), checkpoint SZCH-X-Rays | Kaggle miễn phí / local qua WSL2 | Nếu kịp |
+| B4 | Ảnh xóa xương | Mô hình tự train (U-Net / ResNet-BS) trên JSRT | Local | Nếu kịp |
+| C | 3 kênh [gốc, xóa xương, CLAHE] | Mô hình tốt nhất trong B | Local | Nếu kịp |
 
-→ Chọn mô hình tốt nhất (theo SSIM trên tập test) để xóa xương ảnh VinDr.
-
-### Phần 2: Phát hiện bất thường (VinDr-CXR, YOLO11s, 1024px)
-| Thí nghiệm | Đầu vào | mAP50 | mAP50-95 |
+### Bảng kết quả cần điền (tập test tự chia từ train của Kaggle)
+| Mã | mAP@50 | mAP@[0.5:0.95] | Ghi chú |
 |---|---|---|---|
-| A | ảnh gốc | | |
-| B | ảnh đã xóa xương | | |
-| C | 3 kênh [gốc, xóa xương, CLAHE] | | |
+| A | | | |
+| B1 | | | |
+| B2 | | | |
 
-Cùng cách chia tập (`data/vindr_splits.csv`), cùng siêu tham số, chỉ khác đầu vào.
-Phân tích theo từng bệnh bằng `src.detection.compare` (dự đoán: nốt/khối, đông đặc, xơ hóa có thể tốt lên; vôi hóa có thể tệ đi; tim to không đổi).
+Phân tích thêm theo từng loại bệnh (`results/detection/compare_*.md`). Dự đoán: nốt/khối, đông đặc, xơ phổi có thể tốt lên;
+vôi hóa có thể tệ đi (bị xóa cùng xương); tim to, giãn động mạch chủ ít thay đổi.
+
+## Mô hình có sẵn đã kiểm tra
+
+| Mô hình | Checkpoint | Đã kiểm tra | Lưu ý |
+|---|---|---|---|
+| ResNet-BS (Rajaraman 2021) | `resnet_bs.h5` (Keras) → `checkpoints/pretrained/rajaraman_resnet_bs.pt` | Bản PyTorch khớp Keras (sai số < 1e-5); tái tạo ảnh mẫu của tác giả với SSIM 0,98 | Repo không ghi giấy phép → chỉ dùng cho nghiên cứu, trích dẫn bài báo |
+| AE (hmchuong / Gusarev 2017) | TF1 checkpoint → `checkpoints/pretrained/hmchuong_ae.pt` | Bản PyTorch khớp TensorFlow (sai số < 1e-5); tái tạo ảnh mẫu với SSIM 0,999 | Train trên **ảnh âm bản**: `infer.py` tự đảo màu. MIT license |
+| GL-LCM (MICCAI 2025) | Google Drive (VQGAN + UNet, bản SZCH-X-Rays và JSRT) | Chưa chạy | Cần Linux; README ghi GPU ≥ 32 GB; ~8,5 giây/ảnh với 50 bước. Chưa có script cho ảnh tùy ý |
+| BS-LDM (IEEE JBHI 2025) | Google Drive | Chưa chạy | 1000 bước, ~85 giây/ảnh → không thực tế cho cả VinDr |
+
+## Nền tảng chạy (đã thống nhất)
+
+- **Toàn bộ train YOLO (A, B1, B2…) chạy trên Kaggle Notebook (T4), cùng cấu hình**, bằng `notebooks/vindr_experiments.ipynb`.
+  Không trộn máy: phần cứng khác nhau làm kết quả lệch, khi đó so sánh A với B mất ý nghĩa.
+- Máy cá nhân (Windows 4060 Ti, Mac M5 Pro): chạy thử `--limit`, xem ảnh xóa xương, phân tích kết quả, làm app.
+- Sau mỗi thí nghiệm: commit `results/` và `data/vindr_splits.csv`; `best.pt` lên GitHub Releases. Train xong không cần chạy lại.
+
+## Chi phí
+
+| Việc | Ước lượng trên RTX 4060 Ti 16 GB |
+|---|---|
+| Xóa xương B1, B2 cho ~6.500 ảnh | Vài phút đến vài chục phút |
+| Train 1 YOLO (yolo11s, imgsz 1024, 50 epoch) | Vài giờ. Muốn nhanh hơn: `--imgsz 640` (nhưng mọi thí nghiệm phải giống nhau) |
+| GL-LCM cho ~6.500 ảnh | ~15–30 giờ ở 50 bước. Thử giảm số bước LCM (8–10), chạy thử 20–50 ảnh trước |
+
+GL-LCM: nếu local không đủ VRAM thì dùng **Kaggle Notebook GPU miễn phí** (VinDr đã có sẵn trên Kaggle, không phải tải lên),
+chia ảnh bằng `--shard i/n` cho 4 tài khoản của nhóm. Chỉ thuê máy khi cả hai cách trên không được.
 
 ## Công việc & phân công
 
 | # | Công việc | Phụ trách | Phụ thuộc | Trạng thái |
 |---|---|---|---|---|
 | 1 | Cài môi trường, chạy `scripts/smoke_test.py --with-yolo` | Cả nhóm | | ⬜ |
-| 2 | Tải dữ liệu, kiểm tra cấu trúc thư mục & file meta | | 1 | ⬜ |
-| 3 | `prepare_jsrt` + xem previews (căn chỉnh, đảo màu) | | 2 | ⬜ |
-| 4 | Train + đánh giá 3 mô hình xóa xương | | 3 | ⬜ |
-| 5 | `prepare_vindr` (original) + train YOLO **A** | | 2 | ⬜ |
-| 6 | Xóa xương toàn bộ VinDr, kiểm tra bằng mắt ~30 ảnh | | 4 | ⬜ |
-| 7 | Train YOLO **B** và **C** | | 5, 6 | ⬜ |
-| 8 | Đánh giá, so sánh theo bệnh, vẽ hình | | 7 | ⬜ |
-| 9 | App demo | | 4, 5 | ⬜ |
-| 10 | Báo cáo + slide | Cả nhóm | 8 | ⬜ |
-| 11 | Đưa checkpoints lên GitHub Releases, cập nhật README | | 4, 7 | ⬜ |
-
-Bước 3–4 (Phần 1) và bước 5 (YOLO A) **chạy song song được**.
-
-## Mốc thời gian gợi ý (6 tuần)
-
-| Tuần | Mục tiêu |
-|---|---|
-| 1 | Bước 1–3, đọc 2 bài báo chính |
-| 2 | Bước 4–5 |
-| 3 | Bước 6 |
-| 4 | Bước 7 |
-| 5 | Bước 8–9 |
-| 6 | Bước 10–11 |
-
-## Ước lượng tài nguyên (RTX 4060 Ti 16 GB)
-- Phần 1: ~200 ảnh train, 512px → vài phút/epoch với U-Net; ResNet-BS nặng hơn nên dùng `--crop 256`.
-- Phần 2: ~3.000 ảnh bất thường + 20% ảnh bình thường, YOLO11s @1024, batch 8 → ước tính vài giờ cho mỗi thí nghiệm.
-  Nếu thiếu thời gian: `--imgsz 640` hoặc `yolo11n.pt`, nhưng **A/B/C phải cùng cấu hình**.
+| 2 | Tìm related works, điền `docs/related_works.md` | | | ⬜ |
+| 3 | Tải dữ liệu VinDr (Kaggle), kiểm tra file meta kích thước gốc | | 1 | ⬜ |
+| 4 | `convert_pretrained.py`, chạy thử `infer --limit 20` bằng B1/B2, **xem ảnh bằng mắt** | | 1 | ⬜ |
+| 5 | Kaggle: `run_experiment --experiment A_original` → commit `data/vindr_splits.csv`, `data/vindr_train_sizes.csv`, `results/` | | 3 | ⬜ |
+| 6 | Kaggle: `B1_rajaraman`, `B2_hmchuong` (chạy được song song trên 2 tài khoản, sau khi split đã commit) | | 4, 5 | ⬜ |
+| 7 | Đánh giá, so sánh mAP@50 / mAP@[0.5:0.95] theo bệnh, vẽ hình | | 6 | ⬜ |
+| 8 | (Tùy chọn) GL-LCM → B3 | | 6 | ⬜ |
+| 9 | (Tùy chọn) Tự train xóa xương → B4; PSNR/SSIM trên JSRT | | 6 | ⬜ |
+| 10 | App demo | | 6 | ⬜ |
+| 11 | Báo cáo + slide; đưa checkpoints lên GitHub Releases | Cả nhóm | 7 | ⬜ |
 
 ## Rủi ro & cách xử lý
 | Rủi ro | Cách xử lý |
 |---|---|
-| Lệch miền: JSRT (phim scan Nhật, cũ) ≠ VinDr (X-quang số Việt Nam) | Xem kỹ ảnh xóa xương; thử `--mode direct` và `residual-upsample`; ghi vào hạn chế |
-| Không có "đáp án" xóa xương cho VinDr | Đánh giá gián tiếp qua mAP của YOLO (mục tiêu chính) |
+| Lệch miền: mô hình có sẵn học trên JSRT (phim scan Nhật) / SZCH, VinDr là X-quang số Việt Nam | Xem ảnh bằng mắt trước khi chạy hết; so sánh nhiều mô hình chính là để đo điều này |
 | Xóa xương làm mất vôi hóa / gãy xương sườn | Phân tích theo từng bệnh, đây là phát hiện có giá trị |
-| BSE-JSRT là ảnh do phần mềm tạo | Nêu trong hạn chế; Rajaraman đã kiểm tra chéo trên ảnh dual-energy thật |
-| Hết thời gian train | Giảm `imgsz`/model nhưng giữ A/B/C cùng cấu hình |
+| Tập test tự chia từ train của Kaggle (nhãn test Kaggle bị ẩn) | Ghi rõ trong báo cáo; mọi thí nghiệm dùng chung một cách chia |
+| Hết thời gian train | Giảm `imgsz`/model nhưng giữ mọi thí nghiệm cùng cấu hình |

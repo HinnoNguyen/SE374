@@ -1,6 +1,7 @@
 """Evaluate a bone-suppression checkpoint on the held-out split.
 
-Reports MAE / PSNR / SSIM / MS-SSIM for
+Works for our own checkpoints and converted pretrained ones (resolution and
+polarity are taken from the checkpoint). Reports MAE / PSNR / SSIM / MS-SSIM for
   - "identity": the untouched input compared with the target (lower bound),
   - the model prediction.
 Also saves comparison figures: input | prediction | target | |prediction - target|.
@@ -19,6 +20,7 @@ import pandas as pd
 import torch
 
 from src.bone_suppression.dataset import PairedXrayDataset
+from src.bone_suppression.infer import suppress
 from src.bone_suppression.metrics import image_metrics
 from src.bone_suppression.models import load_checkpoint
 from src.common.io import imwrite
@@ -33,6 +35,8 @@ def main() -> None:
     ap.add_argument("--split", default="test")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--n-figures", type=int, default=8)
+    ap.add_argument("--mode", default="residual-upsample", choices=["residual-upsample", "direct"],
+                    help="only matters when the model resolution differs from the data (e.g. pretrained ResNet-BS @256)")
     ap.add_argument("--device", default="auto")
     args = ap.parse_args()
 
@@ -40,12 +44,15 @@ def main() -> None:
     model, ckpt = load_checkpoint(args.ckpt, device)
     ds = PairedXrayDataset(args.data_root, args.split, augment=False, cache=False)
     out = Path(args.out_dir)
+    model_size = int(ckpt.get("data_size", ds[0][0].shape[-1]))
+    invert = bool(ckpt.get("invert_input", False))
 
     rows = []
     for i in range(len(ds)):
         x, y, pid = ds[i]
+        pred_np, _ = suppress(model, x[0].numpy(), model_size, device, args.mode, invert)
         x, y = x[None].to(device), y[None].to(device)
-        pred = model(x).clamp(0, 1)
+        pred = torch.from_numpy(pred_np)[None, None].to(device)
         for name, img in (("identity", x), ("model", pred)):
             m = {k: v[0] for k, v in image_metrics(img, y).items()}
             rows.append({"id": pid, "method": name, **m})

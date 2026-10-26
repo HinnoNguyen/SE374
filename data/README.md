@@ -22,9 +22,12 @@ python scripts/download_data.py --what all
 
 Sau khi tải, **kiểm tra tên thư mục thực tế** (ví dụ `JSRT/` và `BSE_JSRT/` có thể nằm lồng thêm một cấp) rồi sửa đường dẫn trong lệnh cho đúng.
 
+Trên **Kaggle** không cần tải: gắn competition và dataset PNG làm *Input* (xem `notebooks/vindr_experiments.ipynb`).
+
 ## 3. Lưu ý quan trọng
 - **Kích thước gốc:** toạ độ khung trong `train.csv` tính theo pixel của ảnh DICOM gốc. `prepare_vindr.py` cần file meta có kích thước gốc
   (cột `width`/`height` hoặc `dim0`/`dim1`). Kiểm tra file meta đi kèm bộ PNG (ví dụ `train_meta.csv`) và truyền qua `--meta-csv`.
+  Nếu không có, `scripts/dicom_sizes.py` đọc kích thước từ header DICOM (trên Kaggle DICOM có sẵn) → `data/vindr_train_sizes.csv` (commit lên git).
 - **Không dùng bộ "augmented" có sẵn** của BSE-JSRT để train: bộ đó được tạo từ *toàn bộ* 247 ảnh, kể cả ảnh test, nên sẽ bị rò rỉ dữ liệu.
   Code đã augment trực tiếp khi train, chỉ trên tập train.
 - **BSE-JSRT là ảnh do phần mềm tạo ra**, không phải ảnh chụp dual-energy thật. Cần nêu điều này trong phần hạn chế của báo cáo.
@@ -35,8 +38,9 @@ Sau khi tải, **kiểm tra tên thư mục thực tế** (ví dụ `JSRT/` và 
 data/
 ├── raw/                       # dữ liệu tải về
 ├── processed/bse_512/         # source/, target/, splits.csv, previews/
-├── vindr_suppressed/train/    # ảnh VinDr đã xóa xương
-├── vindr_fused/train/         # ảnh 3 kênh cho thí nghiệm C
-├── vindr_splits.csv           # cách chia train/val/test DÙNG CHUNG cho A/B/C
-└── yolo/{original,suppressed,fused}/   # images/, labels/, data.yaml
+├── vindr_fused/train/         # ảnh 3 kênh cho thí nghiệm C (tùy chọn)
+├── vindr_splits.csv           # cách chia train/val/test DÙNG CHUNG cho mọi thí nghiệm (có trên git)
+├── vindr_train_sizes.csv      # kích thước ảnh gốc (có trên git, nếu phải tạo từ DICOM)
+├── vindr_bs/<thí nghiệm>/train/   # ảnh VinDr đã xóa xương (B1_rajaraman, B2_hmchuong, …)
+└── yolo/<thí nghiệm>/         # images/, labels/, data.yaml (A_original, B1_rajaraman, …)
 ```
