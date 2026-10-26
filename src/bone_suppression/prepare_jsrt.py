@@ -40,6 +40,16 @@ def pair_images(src_dir: Path, tgt_dir: Path) -> list[tuple[str, Path, Path]]:
     raise SystemExit(f"Could not pair images: {len(src)} source vs {len(tgt)} target files")
 
 
+def detect_inverted(pairs, n: int = 20) -> bool:
+    """Removing bright bones makes a standard X-ray darker. If the targets are on
+    average BRIGHTER than the sources, the images are negatives (bones dark)."""
+    diffs = []
+    for _, sp, tp in pairs[:n]:
+        s, t = resize(imread_gray(sp), 256), resize(imread_gray(tp), 256)
+        diffs.append(float((t - s).mean()))
+    return float(np.mean(diffs)) > 0.002
+
+
 def register_ecc(fixed: np.ndarray, moving: np.ndarray, iters: int = 200) -> tuple[np.ndarray, bool]:
     """Align `moving` onto `fixed` using an affine ECC transform."""
     warp = np.eye(2, 3, dtype=np.float32)
@@ -77,6 +87,8 @@ def main() -> None:
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--size", type=int, default=512)
     ap.add_argument("--register", action="store_true", help="ECC-align target to source")
+    ap.add_argument("--invert", default="auto", choices=["auto", "yes", "no"],
+                    help="flip polarity to standard X-ray look (bones bright). auto: detect from the data")
     ap.add_argument("--val-ratio", type=float, default=0.1)
     ap.add_argument("--test-ratio", type=float, default=0.1)
     ap.add_argument("--seed", type=int, default=42)
@@ -86,11 +98,15 @@ def main() -> None:
     out = Path(args.out_dir)
     pairs = pair_images(Path(args.source_dir), Path(args.target_dir))
     print(f"Found {len(pairs)} image pairs")
+    invert = detect_inverted(pairs) if args.invert == "auto" else args.invert == "yes"
+    print(f"polarity: {'NEGATIVE -> flipping to standard' if invert else 'standard'}")
 
     rows = []
     for i, (pid, sp, tp) in enumerate(tqdm(pairs, desc="prepare")):
         s = resize(imread_gray(sp), args.size)
         t = resize(imread_gray(tp), args.size)
+        if invert:
+            s, t = 1.0 - s, 1.0 - t
         reg_ok = None
         if args.register:
             t, reg_ok = register_ecc(s, t)
@@ -115,9 +131,8 @@ def main() -> None:
     print(f"mean |source - target| = {stats['mae_src_tgt'].mean():.4f}")
     if args.register:
         print(f"registration succeeded on {int(stats['registered'].sum())}/{len(stats)} pairs")
-    if (stats["tgt_mean"] > stats["src_mean"] + 0.05).mean() > 0.5:
-        print("[warn] targets are brighter than sources on average - check that the "
-              "folders are not swapped or inverted (see previews/)")
+    if (stats["tgt_mean"] > stats["src_mean"]).mean() > 0.5:
+        print("[warn] targets are still brighter than sources - check that the folders are not swapped (see previews/)")
     print(f"Saved to {out}  (previews: source | target | bone layer)")
 
 

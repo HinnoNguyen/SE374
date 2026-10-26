@@ -2,7 +2,7 @@
 
 Đồ án dựa trên **2 bài báo chính**. Các bài còn lại là tài liệu bổ trợ cho từng thành phần.
 
-> Ghi chú: [1], [2] và DOI của [3] đã được kiểm tra trực tiếp trên trang nhà xuất bản / arXiv (10/2026).
+> Ghi chú: [1], [2], DOI của [3], và [11], [12] (theo README của tác giả) đã được kiểm tra trực tuyến (10/2026).
 > Các tài liệu bổ trợ [4]–[10] là các bài kinh điển, nên kiểm tra lại số trang / tập trước khi đưa vào báo cáo cuối.
 > File BibTeX tương ứng: [`references.bib`](references.bib).
 
@@ -61,3 +61,7 @@
 | [8] | Z. Wang, A. C. Bovik, H. R. Sheikh, E. P. Simoncelli. *Image quality assessment: from error visibility to structural similarity.* IEEE Transactions on Image Processing, 13(4):600–612, 2004. | Chỉ số SSIM |
 | [9] | R. Solovyev, W. Wang, T. Gabruseva. *Weighted boxes fusion: Ensembling boxes from different object detection models.* Image and Vision Computing, 107:104117, 2021. | Gộp khung của 3 bác sĩ (WBF) |
 | [10] | G. Jocher, J. Qiu, A. Chaurasia. *Ultralytics YOLO*, 2023. https://github.com/ultralytics/ultralytics | Mô hình phát hiện YOLO |
+| [11] | Y. Sun, Z. Chen, H. Zheng, Y. Lu, L. Duan, F. Fan, A. Elazab, X. Wan, C. Wang, R. Ge. *GL-LCM: Global-Local Latent Consistency Models for Fast High-Resolution Bone Suppression in Chest X-Ray Images.* MICCAI 2025, pp. 222–232, Springer. arXiv: [2508.03357](https://arxiv.org/abs/2508.03357). Code + checkpoint: https://github.com/diaoquesang/GL-LCM | Mô hình xóa xương có sẵn (B3, giảng viên gợi ý) |
+| [12] | Y. Sun, Z. Chen, H. Zheng, R. Ge, J. Liu, W. Min, A. Elazab, X. Wan, C. Wang. *BS-LDM: Effective Bone Suppression in High-Resolution Chest X-Ray Images with Conditional Latent Diffusion Models.* IEEE Journal of Biomedical and Health Informatics, 2025. arXiv: [2412.15670](https://arxiv.org/abs/2412.15670). Code + checkpoint: https://github.com/diaoquesang/BS-LDM | Mô hình xóa xương có sẵn (tham khảo) |
+
+Code + checkpoint của [1] và [3] được chuyển sang PyTorch bằng `scripts/convert_pretrained.py` (đã kiểm tra khớp với bản gốc).

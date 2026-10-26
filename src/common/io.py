@@ -57,9 +57,9 @@ def read_dicom(path: str | Path) -> np.ndarray:
 
 
 def imread_gray(path: str | Path) -> np.ndarray:
-    """Read any supported image (PNG/JPG/TIFF/DICOM) as grayscale float32 [0, 1]."""
+    """Read any supported image (PNG/JPG/TIFF/DICOM .dcm/.dicom) as grayscale float32 [0, 1]."""
     path = str(path)
-    if path.lower().endswith(".dcm"):
+    if path.lower().endswith((".dcm", ".dicom")):
         return read_dicom(path)
     data = np.fromfile(path, dtype=np.uint8)
     img = cv2.imdecode(data, cv2.IMREAD_UNCHANGED)

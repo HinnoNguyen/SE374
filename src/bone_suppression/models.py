@@ -7,6 +7,8 @@ predicts the bone layer B and the output is  y = x - B.  Learning the
 - unet       : U-Net [Ronneberger 2015] with GroupNorm, any input size.
 - resnet_bs  : ResNet-BS [Rajaraman 2021], 16 residual blocks at full resolution.
 - ae         : convolutional autoencoder, in the spirit of Gusarev et al. 2017.
+- hmchuong_ae: exact port of the published hmchuong/Gusarev AE (pretrained weights only).
+Published Rajaraman ResNet-BS weights load into `resnet_bs` with residual=False.
 """
 from __future__ import annotations
 
@@ -118,6 +120,39 @@ class AutoEncoderBS(nn.Module):
         return self.out(self.decoder(self.encoder(x)))[..., :h, :w]
 
 
+class HmchuongAE(nn.Module):
+    """Exact PyTorch port of hmchuong/ML-BoneSuppression "AELikeModel" (TF1, MIT license).
+
+    Encoder: 3 x [conv 5x5 (no bias) -> ReLU -> max-pool 2]; decoder: 3 transposed convs
+    that re-use (tie) the encoder kernels. Trained at 1024x1024, input = image / 255,
+    predicts the bone-suppressed image directly (use residual=False).
+    Only meant for loading the converted pretrained weights (scripts/convert_pretrained.py).
+    """
+
+    def __init__(self, filters: tuple[int, ...] = (16, 32, 64), k: int = 5):
+        super().__init__()
+        chans = (1, *filters)
+        self.enc = nn.ModuleList(nn.Conv2d(chans[i], chans[i + 1], k, padding=k // 2, bias=False)
+                                 for i in range(len(filters)))
+        # TF conv2d_transpose(stride 2, 'SAME') == full transposed conv cropped [1 : 1 + 2*in]
+        self.dec = nn.ModuleList(nn.ConvTranspose2d(chans[i + 1], chans[i], k, stride=2, bias=False)
+                                 for i in reversed(range(len(filters))))
+
+    def forward(self, x):
+        h, w = x.shape[-2:]
+        m = 2 ** len(self.enc)
+        ph, pw = (m - h % m) % m, (m - w % m) % m
+        if ph or pw:
+            x = F.pad(x, (0, pw, 0, ph), mode="reflect")
+        sizes = []
+        for conv in self.enc:
+            sizes.append(x.shape[-2:])
+            x = F.max_pool2d(F.relu(conv(x)), 2)
+        for deconv, (sh, sw) in zip(self.dec, reversed(sizes)):
+            x = F.relu(deconv(x)[..., 1:1 + sh, 1:1 + sw])
+        return x[..., :h, :w]
+
+
 class BoneSuppressor(nn.Module):
     """Wraps a backbone. residual=True: y = x - backbone(x) (backbone predicts bones)."""
 
@@ -136,7 +171,7 @@ class BoneSuppressor(nn.Module):
         return x - out if self.residual else out
 
 
-MODELS = {"unet": UNet, "resnet_bs": ResNetBS, "ae": AutoEncoderBS}
+MODELS = {"unet": UNet, "resnet_bs": ResNetBS, "ae": AutoEncoderBS, "hmchuong_ae": HmchuongAE}
 
 
 def build_model(name: str, residual: bool = True, **kwargs) -> BoneSuppressor:

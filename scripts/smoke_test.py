@@ -110,6 +110,13 @@ def main() -> None:
              "--data-root", str(bse), "--out-dir", str(tmp / "results/bse"))
         step("infer (VinDr images)", "-m", "src.bone_suppression.infer", "--ckpt", str(ck / "unet/best.pt"),
              "--input", str(tmp / "vindr/png"), "--output", str(tmp / "vindr/supp"), "--save-bone")
+        pretrained = sorted((ROOT / "checkpoints" / "pretrained").glob("*.pt"))
+        for ck_path in pretrained:  # converted published models, if present
+            step(f"infer pretrained {ck_path.stem}", "-m", "src.bone_suppression.infer", "--ckpt", str(ck_path),
+                 "--input", str(tmp / "vindr/png"), "--output", str(tmp / "vindr" / f"bs_{ck_path.stem}"),
+                 "--limit", "4", "--shard", "1/2")
+        if not pretrained:
+            print("\n(no checkpoints/pretrained/*.pt yet - run scripts/convert_pretrained.py to test them too)")
         step("make_fused", "-m", "src.detection.make_fused", "--orig-dir", str(tmp / "vindr/png"),
              "--supp-dir", str(tmp / "vindr/supp"), "--out-dir", str(tmp / "vindr/fused"))
         common = ["--csv", str(tmp / "vindr/train.csv"), "--meta-csv", str(tmp / "vindr/train_meta.csv"),
